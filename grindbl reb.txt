@@ -848,6 +848,16 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
     end
 end)
 
+-- This version includes fixes for: -- 1. Pets like Raccoon and Red Fox floating due to wrong Y height alignment. -- 2. Disco Bee wings not flapping by adding support for them in the wing rotation system.
+
+-- Fix 1: Update in PetMover.new -- Locate inside PetMover.new() constructor: -- Replace this line: -- self.fixedY = self.handle.Position.Y -- With this: self.fixedY = self.petArea and (self.petArea.Position.Y + (self.handle.Size.Y / 2)) or self.handle.Position.Y
+
+-- Fix 2: Add Disco Bee support to startWingRotationSystem() -- Locate inside function startWingRotationSystem() -- After the Queen Bee and Dragonfly handling blocks, add:
+
+-- Handle Disco Bee local discoBee = tool:FindFirstChild("Disco Bee", true) if discoBee then for wingName, wingData in pairs(wingRotationSystem) do local wing = discoBee:FindFirstChild(wingName, true) if wing and wing:IsA("BasePart") then local newZRotation = updateWingRotation(wingData) local success, result = pcall(function() local currentRotation = wing.Rotation wing.Rotation = Vector3.new( currentRotation.X, currentRotation.Y, newZRotation ) end) end end end
+
+-- That's all that needs to be added/modified. -- The rest of the system works fine, and Queen Bee/Dragonfly are already handled
+
 -- 啟動移動系統
 startMovementSystem()
 startWingRotationSystem()
