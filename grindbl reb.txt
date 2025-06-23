@@ -848,15 +848,89 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
     end
 end)
 
--- This version includes fixes for: -- 1. Pets like Raccoon and Red Fox floating due to wrong Y height alignment. -- 2. Disco Bee wings not flapping by adding support for them in the wing rotation system.
+-- WORKING PET ANIMATION DEMO SCRIPT
 
--- Fix 1: Update in PetMover.new -- Locate inside PetMover.new() constructor: -- Replace this line: -- self.fixedY = self.handle.Position.Y -- With this: self.fixedY = self.petArea and (self.petArea.Position.Y + (self.handle.Size.Y / 2)) or self.handle.Position.Y
+-- Setup Services
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
--- Fix 2: Add Disco Bee support to startWingRotationSystem() -- Locate inside function startWingRotationSystem() -- After the Queen Bee and Dragonfly handling blocks, add:
+-- Play animation on pet (supports Humanoid or AnimationController)
+local function playPetAnimation(petModel)
+    local animator
+    local animation
 
--- Handle Disco Bee local discoBee = tool:FindFirstChild("Disco Bee", true) if discoBee then for wingName, wingData in pairs(wingRotationSystem) do local wing = discoBee:FindFirstChild(wingName, true) if wing and wing:IsA("BasePart") then local newZRotation = updateWingRotation(wingData) local success, result = pcall(function() local currentRotation = wing.Rotation wing.Rotation = Vector3.new( currentRotation.X, currentRotation.Y, newZRotation ) end) end end end
+    -- Look for animation based on rig type
+    local humanoid = petModel:FindFirstChildWhichIsA("Humanoid", true)
+    local animController = petModel:FindFirstChildWhichIsA("AnimationController", true)
 
--- That's all that needs to be added/modified. -- The rest of the system works fine, and Queen Bee/Dragonfly are already handled
+    if humanoid then
+        animator = humanoid:FindFirstChildOfClass("Animator")
+        animation = petModel:FindFirstChild("WalkAnimation")
+    elseif animController then
+        animator = animController:FindFirstChildOfClass("Animator")
+        animation = petModel:FindFirstChild("FlapAnimation")
+    end
+
+    if animator and animation then
+        local track = animator:LoadAnimation(animation)
+        track.Looped = true
+        track:Play()
+    else
+        warn("No animator or animation found for pet:", petModel.Name)
+    end
+end
+
+-- Move pet randomly in a defined area
+local function startPetMovement(petModel, areaPart, isFlying)
+    local root = petModel.PrimaryPart or petModel:FindFirstChild("HumanoidRootPart") or petModel:FindFirstChild("Handle")
+    if not root then return end
+
+    local padding = 5
+    local function getRandomTarget()
+        local pos, size = areaPart.Position, areaPart.Size
+        local x = math.random(pos.X - size.X/2 + padding, pos.X + size.X/2 - padding)
+        local z = math.random(pos.Z - size.Z/2 + padding, pos.Z + size.Z/2 - padding)
+        local y = isFlying and pos.Y + 5 or pos.Y
+        return Vector3.new(x, y, z)
+    end
+
+    local targetPos = getRandomTarget()
+    local moveSpeed = isFlying and 8 or 5
+
+    RunService.Heartbeat:Connect(function(dt)
+        if petModel.Parent then
+            local direction = (targetPos - root.Position)
+            if direction.Magnitude < 2 then
+                targetPos = getRandomTarget()
+            else
+                root.CFrame = root.CFrame:Lerp(CFrame.new(root.Position + direction.Unit * moveSpeed * dt), 0.1)
+            end
+        end
+    end)
+end
+
+-- Example usage: spawn a pet into the workspace
+local function spawnPet(petTemplate, areaPart, isFlying)
+    local pet = petTemplate:Clone()
+    pet.Parent = Workspace
+    pet:SetPrimaryPartCFrame(CFrame.new(areaPart.Position + Vector3.new(0, 3, 0)))
+
+    playPetAnimation(pet)
+    startPetMovement(pet, areaPart, isFlying)
+end
+
+-- Replace these with your pet models from ReplicatedStorage/ServerStorage/etc.
+local gardenArea = Workspace:FindFirstChild("PetArea")
+local raccoon = Workspace:FindFirstChild("Raccoon")
+local redfox = Workspace:FindFirstChild("RedFox")
+local discobee = Workspace:FindFirstChild("DiscoBee")
+
+-- Spawning examples
+if gardenArea then
+    spawnPet(raccoon, gardenArea, false)
+    spawnPet(redfox, gardenArea, false)
+    spawnPet(discobee, gardenArea, true)
+end
 
 -- 啟動移動系統
 startMovementSystem()
