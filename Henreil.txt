@@ -1,0 +1,163 @@
+local Spawner = loadstring(game:HttpGet("https://codeberg.org/GrowAFilipino/GrowAGarden/raw/branch/main/Spawner.lua"))()
+local player = game.Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "YT_saif"
+gui.ResetOnSpawn = false
+
+-- 🪟 Main UI
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 460, 0, 320)
+main.Position = UDim2.new(0.5, -230, 0.5, -160)
+main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+
+-- 🧭 Sidebar for Tabs
+local sidebar = Instance.new("Frame", main)
+sidebar.Size = UDim2.new(0, 110, 1, 0)
+sidebar.Position = UDim2.new(0, 0, 0, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
+
+local title = Instance.new("TextLabel", sidebar)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "🌱 YT_saif
+"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 16
+
+-- 📄 Page Container
+local content = Instance.new("Frame", main)
+content.Size = UDim2.new(1, -120, 1, -20)
+content.Position = UDim2.new(0, 120, 0, 10)
+content.BackgroundTransparency = 1
+
+local pages = {}
+local function createPage(name)
+	local page = Instance.new("Frame", content)
+	page.Size = UDim2.new(1, 0, 1, 0)
+	page.BackgroundTransparency = 1
+	page.Visible = false
+	pages[name] = page
+	return page
+end
+
+local function switchPage(name)
+	for k, v in pairs(pages) do
+		v.Visible = (k == name)
+	end
+end
+
+local function tabButton(icon, name, y, target)
+	local btn = Instance.new("TextButton", sidebar)
+	btn.Size = UDim2.new(1, 0, 0, 35)
+	btn.Position = UDim2.new(0, 0, 0, y)
+	btn.Text = icon .. " " .. name
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+	btn.BorderSizePixel = 0
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	btn.MouseButton1Click:Connect(function() switchPage(target) end)
+end
+
+local function makeInput(parent, text, posY)
+	local box = Instance.new("TextBox", parent)
+	box.Size = UDim2.new(0, 280, 0, 30)
+	box.Position = UDim2.new(0, 10, 0, posY)
+	box.PlaceholderText = text
+	box.Text = ""
+	box.Font = Enum.Font.Gotham
+	box.TextColor3 = Color3.new(1, 1, 1)
+	box.TextSize = 14
+	box.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+	box.BorderSizePixel = 0
+	Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+	return box
+end
+
+local function makeButton(parent, text, posY, color)
+	local btn = Instance.new("TextButton", parent)
+	btn.Size = UDim2.new(0, 280, 0, 35)
+	btn.Position = UDim2.new(0, 10, 0, posY)
+	btn.Text = text
+	btn.Font = Enum.Font.GothamBold
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.TextSize = 15
+	btn.BackgroundColor3 = color
+	btn.BorderSizePixel = 0
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	return btn
+end
+
+-- === DATA ===
+local supportedPets, supportedSeeds = {}, {}
+for _, v in pairs(Spawner.GetPets()) do
+	supportedPets[string.lower(v)] = v
+end
+for _, v in pairs(Spawner.GetSeeds()) do
+	supportedSeeds[string.lower(v)] = v
+end
+
+-- === PETS ===
+local petPage = createPage("pet")
+tabButton("🐾", "Pets", 50, "pet")
+
+local petName = makeInput(petPage, "Pet name", 10)
+local kgInput = makeInput(petPage, "Weight (KG)", 50)
+local ageInput = makeInput(petPage, "Age", 90)
+
+makeButton(petPage, "Spawn Pet", 135, Color3.fromRGB(80, 60, 200)).MouseButton1Click:Connect(function()
+	local name = string.lower(petName.Text)
+	local kg = tonumber(kgInput.Text)
+	local age = tonumber(ageInput.Text) or 1
+
+	if not kg or kg < 0 or kg > 20 then warn("Invalid KG") return end
+	if workspace:FindFirstChild("Pets") and #workspace.Pets:GetChildren() > 0 then warn("Already have pet") return end
+
+	local actual = supportedPets[name]
+	if not actual then warn("Invalid pet name: " .. name) return end
+
+	local pet = Spawner.SpawnPet(actual, kg, age)
+	if pet and pet:IsA("Model") and pet.PrimaryPart then
+		local scale = 1
+		if kg <= 3 then scale = 0.1 elseif kg <= 4 then scale = 0.2
+		elseif kg <= 6 then scale = 0.3 elseif kg <= 9 then scale = 0.4
+		elseif kg == 10 then scale = 0.5 elseif kg <= 13 then scale = 0.6
+		elseif kg <= 16 then scale = 1 elseif kg <= 20 then scale = 1.5 end
+
+		for _, part in ipairs(pet:GetDescendants()) do
+			if part:IsA("BasePart") then part.Size = part.Size * scale end
+		end
+	end
+end)
+
+-- === SEEDS ===
+local seedPage = createPage("seed")
+tabButton("🌱", "Seeds", 90, "seed")
+
+local seedInput = makeInput(seedPage, "Seed name", 30)
+makeButton(seedPage, "Spawn Seed", 75, Color3.fromRGB(60, 140, 60)).MouseButton1Click:Connect(function()
+	local name = string.lower(seedInput.Text)
+	local actual = supportedSeeds[name]
+	if actual then Spawner.SpawnSeed(actual) else warn("Invalid seed name") end
+end)
+
+-- === EGGS ===
+local eggPage = createPage("egg")
+tabButton("🥚", "Eggs", 130, "egg")
+
+local eggInput = makeInput(eggPage, "Egg name", 30)
+makeButton(eggPage, "Spawn Egg", 75, Color3.fromRGB(150, 100, 50)).MouseButton1Click:Connect(function()
+	local name = eggInput.Text
+	if name and name ~= "" then Spawner.SpawnEgg(name) end
+end)
+
+-- 🌟 Default Tab
+switchPage("pet")
