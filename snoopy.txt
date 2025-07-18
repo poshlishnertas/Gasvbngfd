@@ -2,7 +2,7 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/poshl
 local player = game.Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "SPIDROSHH OP SCRIPT"
+gui.Name = "SNOOOPYY OP SCRIPT"
 gui.ResetOnSpawn = false
 
 -- 🪟 Main Frame
@@ -19,7 +19,7 @@ Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
 local header = Instance.new("TextLabel", main)
 header.Size = UDim2.new(1, 0, 0, 25)
 header.Position = UDim2.new(0, 0, 0, 0)
-header.Text = "SPIDROSHH OP SCRIPT"
+header.Text = "SNOOOPYY OP SCRIPT"
 header.TextColor3 = Color3.fromRGB(255, 255, 255)
 header.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 header.Font = Enum.Font.GothamBlack
