@@ -1,0 +1,249 @@
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/poshlishnertas/Gasvbngfd/refs/heads/main/notsure"))()
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "BetterSpawnerUI"
+gui.ResetOnSpawn = false
+
+-- Main Frame
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 380, 0, 320)
+main.Position = UDim2.new(0.5, -190, 0.5, -160)
+main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+
+-- Close Button
+local closeBtn = Instance.new("TextButton", main)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+closeBtn.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+-- Title
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, -40, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.Text = "🧪 Better Spawner UI"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.BackgroundTransparency = 1
+
+-- Tab Buttons
+local tabButtons = Instance.new("Frame", main)
+tabButtons.Size = UDim2.new(1, 0, 0, 35)
+tabButtons.Position = UDim2.new(0, 0, 0, 40)
+tabButtons.BackgroundTransparency = 1
+
+local contentHolder = Instance.new("Frame", main)
+contentHolder.Size = UDim2.new(1, 0, 1, -80)
+contentHolder.Position = UDim2.new(0, 0, 0, 80)
+contentHolder.BackgroundTransparency = 1
+
+local pages = {}
+local function createPage(name)
+	local page = Instance.new("Frame", contentHolder)
+	page.Size = UDim2.new(1, 0, 1, 0)
+	page.BackgroundTransparency = 1
+	page.Visible = false
+	pages[name] = page
+	return page
+end
+
+local function switchPage(name)
+	for n, page in pairs(pages) do
+		page.Visible = (n == name)
+	end
+end
+
+local function createTab(name, pos, target)
+	local btn = Instance.new("TextButton", tabButtons)
+	btn.Size = UDim2.new(0, 120, 1, 0)
+	btn.Position = UDim2.new(0, pos, 0, 0)
+	btn.Text = name
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	btn.MouseButton1Click:Connect(function()
+		switchPage(target)
+	end)
+end
+
+local function makeLabeledInput(parent, labelText, posY)
+	local label = Instance.new("TextLabel", parent)
+	label.Position = UDim2.new(0, 20, 0, posY)
+	label.Size = UDim2.new(0, 340, 0, 20)
+	label.Text = labelText
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 13
+	label.BackgroundTransparency = 1
+
+	local input = Instance.new("TextBox", parent)
+	input.Position = UDim2.new(0, 20, 0, posY + 20)
+	input.Size = UDim2.new(0, 340, 0, 30)
+	input.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+	input.TextColor3 = Color3.new(1, 1, 1)
+	input.PlaceholderText = labelText
+	input.Text = ""
+	input.Font = Enum.Font.Gotham
+	input.TextSize = 14
+	input.BorderSizePixel = 0
+	Instance.new("UICorner", input).CornerRadius = UDim.new(0, 6)
+
+	return input
+end
+
+-- Feedback message
+local function makeMessage(parent)
+	local msg = Instance.new("TextLabel", parent)
+	msg.Position = UDim2.new(0, 20, 1, -30)
+	msg.Size = UDim2.new(0, 340, 0, 20)
+	msg.TextColor3 = Color3.new(1, 0.3, 0.3)
+	msg.Font = Enum.Font.GothamBold
+	msg.TextSize = 13
+	msg.Text = ""
+	msg.BackgroundTransparency = 1
+	return msg
+end
+
+-- Supported data
+local supportedPets, supportedSeeds = {}, {}
+for _, v in pairs(Spawner.GetPets()) do
+	supportedPets[string.lower(v)] = v
+end
+for _, v in pairs(Spawner.GetSeeds()) do
+	supportedSeeds[string.lower(v)] = v
+end
+
+-- === PET PAGE ===
+local petPage = createPage("pet")
+createTab("🐾 Pets", 10, "pet")
+local petName = makeLabeledInput(petPage, "Pet Name", 10)
+local petKg = makeLabeledInput(petPage, "Weight (KG)", 60)
+local petAge = makeLabeledInput(petPage, "Age", 110)
+local petMsg = makeMessage(petPage)
+
+local petBtn = Instance.new("TextButton", petPage)
+petBtn.Position = UDim2.new(0, 20, 0, 160)
+petBtn.Size = UDim2.new(0, 340, 0, 35)
+petBtn.Text = "Spawn Pet"
+petBtn.Font = Enum.Font.GothamBold
+petBtn.TextSize = 15
+petBtn.BackgroundColor3 = Color3.fromRGB(70, 100, 200)
+petBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", petBtn).CornerRadius = UDim.new(0, 6)
+
+local function hasPet()
+	local pets = workspace:FindFirstChild("Pets")
+	return pets and #pets:GetChildren() > 0
+end
+
+petBtn.MouseButton1Click:Connect(function()
+	local name = string.lower(petName.Text)
+	local kg = tonumber(petKg.Text)
+	local age = tonumber(petAge.Text) or 1
+
+	petMsg.Text = ""
+	if not kg or kg <= 0 or kg > 20 then
+		petMsg.Text = "❌ Invalid KG (must be 1–20)"
+		return
+	end
+	if hasPet() then
+		petMsg.Text = "❌ You already have a pet."
+		return
+	end
+	local actual = supportedPets[name]
+	if not actual then
+		petMsg.Text = "❌ Invalid pet name."
+		return
+	end
+
+	local pet = Spawner.SpawnPet(actual, kg, age)
+	if pet and pet:IsA("Model") and pet.PrimaryPart then
+		local scale = 1
+		if kg <= 3 then scale = 0.1
+		elseif kg <= 4 then scale = 0.2
+		elseif kg <= 6 then scale = 0.3
+		elseif kg <= 9 then scale = 0.4
+		elseif kg == 10 then scale = 0.5
+		elseif kg <= 13 then scale = 0.6
+		elseif kg <= 16 then scale = 1
+		elseif kg <= 20 then scale = 1.5 end
+
+		for _, part in ipairs(pet:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.Size *= scale
+			end
+		end
+		petMsg.Text = "✅ Pet spawned!"
+	end
+end)
+
+-- === SEED PAGE ===
+local seedPage = createPage("seed")
+createTab("🌱 Seeds", 130, "seed")
+local seedInput = makeLabeledInput(seedPage, "Seed Name", 20)
+local seedMsg = makeMessage(seedPage)
+
+local seedBtn = Instance.new("TextButton", seedPage)
+seedBtn.Position = UDim2.new(0, 20, 0, 70)
+seedBtn.Size = UDim2.new(0, 340, 0, 35)
+seedBtn.Text = "Spawn Seed"
+seedBtn.Font = Enum.Font.GothamBold
+seedBtn.TextSize = 15
+seedBtn.BackgroundColor3 = Color3.fromRGB(80, 180, 80)
+seedBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", seedBtn).CornerRadius = UDim.new(0, 6)
+
+seedBtn.MouseButton1Click:Connect(function()
+	local name = string.lower(seedInput.Text)
+	seedMsg.Text = ""
+	if supportedSeeds[name] then
+		Spawner.SpawnSeed(supportedSeeds[name])
+		seedMsg.Text = "✅ Seed spawned!"
+	else
+		seedMsg.Text = "❌ Invalid seed name."
+	end
+end)
+
+-- === EGG PAGE ===
+local eggPage = createPage("egg")
+createTab("🥚 Eggs", 250, "egg")
+local eggInput = makeLabeledInput(eggPage, "Egg Name", 20)
+local eggMsg = makeMessage(eggPage)
+
+local eggBtn = Instance.new("TextButton", eggPage)
+eggBtn.Position = UDim2.new(0, 20, 0, 70)
+eggBtn.Size = UDim2.new(0, 340, 0, 35)
+eggBtn.Text = "Spawn Egg"
+eggBtn.Font = Enum.Font.GothamBold
+eggBtn.TextSize = 15
+eggBtn.BackgroundColor3 = Color3.fromRGB(180, 120, 60)
+eggBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", eggBtn).CornerRadius = UDim.new(0, 6)
+
+eggBtn.MouseButton1Click:Connect(function()
+	local name = eggInput.Text
+	eggMsg.Text = ""
+	if name and name ~= "" then
+		Spawner.SpawnEgg(name)
+		eggMsg.Text = "✅ Egg spawned!"
+	else
+		eggMsg.Text = "❌ Please enter an egg name."
+	end
+end)
+
+-- Default tab
+switchPage("pet")
