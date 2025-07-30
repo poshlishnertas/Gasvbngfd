@@ -1,7 +1,7 @@
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/poshlishnertas/Gasvbngfd/refs/heads/main/notsure"))()
 local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "BetterSpawnerUI"
+gui.Name = "REBORN SCRIPTS"
 gui.ResetOnSpawn = false
 
 -- Main Frame
