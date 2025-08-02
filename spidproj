@@ -36,6 +36,21 @@ rightBar.BackgroundColor3 = Color3.fromRGB(0, 110, 255)
 rightBar.BorderSizePixel = 0
 addCorner(rightBar, 4)
 
+-- Pink top and bottom bars
+local topBar = Instance.new("Frame", main)
+topBar.Size = UDim2.new(1, 0, 0, 6)
+topBar.Position = UDim2.new(0, 0, 0, 0)
+topBar.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+topBar.BorderSizePixel = 0
+addCorner(topBar, 4)
+
+local bottomBar = Instance.new("Frame", main)
+bottomBar.Size = UDim2.new(1, 0, 0, 6)
+bottomBar.Position = UDim2.new(0, 0, 1, -6)
+bottomBar.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+bottomBar.BorderSizePixel = 0
+addCorner(bottomBar, 4)
+
 -- Header
 local header = Instance.new("TextLabel", main)
 header.Size = UDim2.new(1, -12, 0, 28)
@@ -80,7 +95,7 @@ end
 -- Tabs
 local function tabBtn(name, posX, target)
 	local btn = Instance.new("TextButton", tabHolder)
-	btn.Size = UDim2.new(0, 110, 1, 0)
+	btn.Size = UDim2.new(0, 105, 1, 0)  -- Adjusted width to prevent overlap
 	btn.Position = UDim2.new(0, posX, 0, 0)
 	btn.Text = name
 	btn.TextColor3 = Color3.fromRGB(255, 105, 180)
@@ -116,6 +131,11 @@ local function tabBtn(name, posX, target)
 	end)
 	return btn
 end
+
+-- Create tabs with adjusted positions (5px gaps)
+local petTabBtn = tabBtn("🐾 Pets", 5, "pet")
+local seedTabBtn = tabBtn("🌱 Seeds", 115, "seed")  -- 5 + 105 + 5
+local eggTabBtn = tabBtn("🥚 Eggs", 225, "egg")     -- 115 + 105 + 5
 
 -- Input creation helper with real placeholder text behavior
 local function makeInput(parent, placeholder, posY)
@@ -158,8 +178,6 @@ end
 
 -- === PET PAGE ===
 local petPage = createPage("pet")
-local petTabBtn = tabBtn("🐾 Pets", 5, "pet")
-
 local petName = makeInput(petPage, "Enter pet name", 15)
 local kgInput = makeInput(petPage, "Weight (KG)", 60)
 local ageInput = makeInput(petPage, "Age", 105)
@@ -226,7 +244,6 @@ end)
 
 -- === SEED PAGE ===
 local seedPage = createPage("seed")
-local seedTabBtn = tabBtn("🌱 Seeds", 120, "seed")
 
 local seedInput = makeInput(seedPage, "Enter seed name", 30)
 
@@ -265,7 +282,6 @@ end)
 
 -- === EGG PAGE ===
 local eggPage = createPage("egg")
-local eggTabBtn = tabBtn("🥚 Eggs", 235, "egg")
 
 local eggInput = makeInput(eggPage, "Enter egg name", 30)
 
