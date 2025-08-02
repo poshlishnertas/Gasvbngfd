@@ -1,8 +1,8 @@
-local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/poshlishnertas/Gasvbngfd/refs/heads/main/fixedspawner"))()
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/poshlishnertas/Gasvbngfd/refs/heads/main/notsure"))()
 local player = game.Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "SPIDROSHH_OP_SCRIPT"
+gui.Name = "SPIDROSHH OP SCRIPT"
 gui.ResetOnSpawn = false
 
 local function addCorner(parent, radius)
