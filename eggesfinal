@@ -1,4 +1,4 @@
--- ⚡ ZacScripts - Pet Detector Script (Draggable + Watermarked)
+-- ⚡ SPIDROSHH - Pet Detector Script (Draggable + Watermarked)
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -155,7 +155,7 @@ local function createUI()
 	madeBy.Size = UDim2.new(1, 0, 0, 15)
 	madeBy.Position = UDim2.new(0, 0, 0, 28)
 	madeBy.BackgroundTransparency = 1
-	madeBy.Text = "made by ZacScripts"
+	madeBy.Text = "YT: SPIDROSHH"
 	madeBy.Font = Enum.Font.Gotham
 	madeBy.TextColor3 = Color3.fromRGB(255, 255, 255)
 	madeBy.TextScaled = true
