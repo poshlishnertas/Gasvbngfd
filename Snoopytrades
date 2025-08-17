@@ -1,0 +1,178 @@
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "DarkTradeGUI"
+screenGui.ResetOnSpawn = false
+
+-- Notification Frame
+local notificationFrame = Instance.new("Frame")
+notificationFrame.Size = UDim2.new(0.4, 0, 0.08, 0)
+notificationFrame.Position = UDim2.new(0.3, 0, 1, 0)
+notificationFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+notificationFrame.BorderSizePixel = 0
+notificationFrame.Visible = false
+notificationFrame.Parent = screenGui
+Instance.new("UICorner", notificationFrame).CornerRadius = UDim.new(0.2, 0)
+
+local notificationGradient = Instance.new("UIGradient", notificationFrame)
+notificationGradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 85, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 150))
+}
+
+local notificationText = Instance.new("TextLabel", notificationFrame)
+notificationText.Size = UDim2.new(1, 0, 1, 0)
+notificationText.BackgroundTransparency = 1
+notificationText.TextColor3 = Color3.fromRGB(200, 200, 255)
+notificationText.TextScaled = true
+notificationText.Font = Enum.Font.FredokaOne
+
+local fireEffect = Instance.new("ParticleEmitter")
+fireEffect.Texture = "rbxassetid://243660364"
+fireEffect.Size = NumberSequence.new(0.6)
+fireEffect.Lifetime = NumberRange.new(0.5, 1)
+fireEffect.Rate = 25
+fireEffect.Rotation = NumberRange.new(0, 360)
+fireEffect.Speed = NumberRange.new(1, 2)
+fireEffect.RotSpeed = NumberRange.new(10, 30)
+fireEffect.Transparency = NumberSequence.new{
+	NumberSequenceKeypoint.new(0, 0),
+	NumberSequenceKeypoint.new(1, 1)
+}
+fireEffect.LightEmission = 1
+fireEffect.Color = ColorSequence.new(Color3.fromRGB(0, 150, 255), Color3.fromRGB(0, 60, 255))
+fireEffect.Enabled = false
+fireEffect.Parent = notificationFrame
+
+local function showNotification(message)
+	notificationText.Text = message
+	notificationFrame.Visible = true
+	fireEffect.Enabled = true
+
+	TweenService:Create(notificationFrame, TweenInfo.new(0.4), {
+		Position = UDim2.new(0.3, 0, 0.87, 0)
+	}):Play()
+
+	task.wait(4)
+
+	TweenService:Create(notificationFrame, TweenInfo.new(0.4), {
+		Position = UDim2.new(0.3, 0, 1, 0)
+	}):Play()
+
+	task.wait(0.4)
+	fireEffect.Enabled = false
+	notificationFrame.Visible = false
+end
+
+-- Main Frame
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0.35, 0, 0.4, 0)
+frame.Position = UDim2.new(0.325, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+frame.BorderSizePixel = 0
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0.12, 0)
+
+local frameGradient = Instance.new("UIGradient", frame)
+frameGradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 100, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 50))
+}
+
+-- Title
+local titleLabel = Instance.new("TextLabel", frame)
+titleLabel.Size = UDim2.new(1, -10, 0.2, 0)
+titleLabel.Position = UDim2.new(0, 5, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "GROW A GARDEN TRADER 🌐"
+titleLabel.TextColor3 = Color3.fromRGB(180, 200, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.FredokaOne
+
+-- Button Creator
+local function createButton(text, position, callback)
+	local button = Instance.new("TextButton", frame)
+	button.Size = UDim2.new(0.8, 0, 0.15, 0)
+	button.Position = position
+	button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+	button.Text = text
+	button.TextSize = 22
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.Font = Enum.Font.GothamSemibold
+
+	Instance.new("UICorner", button).CornerRadius = UDim.new(0.1, 0)
+
+	local btnGradient = Instance.new("UIGradient", button)
+	btnGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 150, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 60, 180))
+	}
+
+	button.MouseEnter:Connect(function()
+		button.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+	end)
+
+	button.MouseLeave:Connect(function()
+		button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+	end)
+
+	button.MouseButton1Click:Connect(callback)
+
+	return button
+end
+
+-- Buttons
+createButton("🧊 Freeze Offer", UDim2.new(0.1, 0, 0.45, 0), function()
+	showNotification("Offer frozen! Ready to switch.")
+end)
+
+createButton("⚡ Auto Accept", UDim2.new(0.1, 0, 0.65, 0), function()
+	showNotification("Auto accept active!")
+end)
+
+-- Dragging Logic
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+local dragArea = Instance.new("Frame", frame)
+dragArea.Size = UDim2.new(1, 0, 1, 0)
+dragArea.BackgroundTransparency = 1
+dragArea.ZIndex = 10
+
+dragArea.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+dragArea.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+		update(input)
+	end
+end)
