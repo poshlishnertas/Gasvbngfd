@@ -47,17 +47,21 @@ fireEffect.Color = ColorSequence.new(Color3.fromRGB(0, 150, 255), Color3.fromRGB
 fireEffect.Enabled = false
 fireEffect.Parent = notificationFrame
 
+-- ✅ Fixed Notification
 local function showNotification(message)
 	notificationText.Text = message
 	notificationFrame.Visible = true
 	fireEffect.Enabled = true
 
+	-- Slide in
 	TweenService:Create(notificationFrame, TweenInfo.new(0.4), {
 		Position = UDim2.new(0.3, 0, 0.87, 0)
 	}):Play()
 
-	task.wait(4)
+	-- Stay for 3 seconds
+	task.wait(0.4 + 3)
 
+	-- Slide out
 	TweenService:Create(notificationFrame, TweenInfo.new(0.4), {
 		Position = UDim2.new(0.3, 0, 1, 0)
 	}):Play()
