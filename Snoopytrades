@@ -4,7 +4,7 @@ local player = game.Players.LocalPlayer
 
 -- GUI Setup
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-screenGui.Name = "DarkTradeGUI"
+screenGui.Name = "OP TRADE SCAM"
 screenGui.ResetOnSpawn = false
 
 -- Notification Frame
