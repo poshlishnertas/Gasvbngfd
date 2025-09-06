@@ -1,0 +1,251 @@
+-- Pet Leveler GUI (PrimaryPart Proper Scaling)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Config
+local DEFAULT_AGE = 69
+local MAX_AGE = 100
+local LOADING_SECONDS = 5
+
+-- GUI Setup
+local GUI_NAME = "PetLevelerUI"
+if PlayerGui:FindFirstChild(GUI_NAME) then
+    PlayerGui[GUI_NAME]:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = GUI_NAME
+ScreenGui.ResetOnSpawn = false
+
+-- Main Frame
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 320, 0, 260)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -130)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+
+-- Title
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 32)
+Title.Position = UDim2.new(0, 0, 0, 5)
+Title.Text = "Pet Leveler"
+Title.Font = Enum.Font.FredokaOne
+Title.TextSize = 22
+Title.TextColor3 = Color3.fromRGB(200, 200, 255)
+Title.BackgroundTransparency = 1
+Title.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Close Button
+local CloseButton = Instance.new("TextButton", MainFrame)
+CloseButton.Size = UDim2.new(0, 28, 0, 28)
+CloseButton.Position = UDim2.new(1, -33, 0, 5)
+CloseButton.Text = "×"
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextSize = 18
+Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 6)
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Input Box
+local InputBox = Instance.new("TextBox", MainFrame)
+InputBox.Size = UDim2.new(1, -40, 0, 38)
+InputBox.Position = UDim2.new(0, 20, 0, 60)
+InputBox.PlaceholderText = "Enter target age (max 100)..."
+InputBox.Font = Enum.Font.GothamBold
+InputBox.TextSize = 18
+InputBox.Text = ""
+InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+InputBox.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+Instance.new("UICorner", InputBox).CornerRadius = UDim.new(0, 6)
+
+-- Feedback Label
+local FeedbackLabel = Instance.new("TextLabel", MainFrame)
+FeedbackLabel.Size = UDim2.new(1, -20, 0, 40)
+FeedbackLabel.Position = UDim2.new(0, 10, 0, 108)
+FeedbackLabel.BackgroundTransparency = 1
+FeedbackLabel.Font = Enum.Font.GothamBold
+FeedbackLabel.TextSize = 18
+FeedbackLabel.TextColor3 = Color3.fromRGB(220, 220, 255)
+FeedbackLabel.TextWrapped = true
+FeedbackLabel.TextXAlignment = Enum.TextXAlignment.Center
+FeedbackLabel.TextYAlignment = Enum.TextYAlignment.Center
+FeedbackLabel.Visible = false
+
+-- Percentage Label
+local Percentage = Instance.new("TextLabel", MainFrame)
+Percentage.Size = UDim2.new(1, -20, 0, 40)
+Percentage.Position = UDim2.new(0, 10, 0, 140)
+Percentage.BackgroundTransparency = 1
+Percentage.Font = Enum.Font.GothamBold
+Percentage.TextSize = 24
+Percentage.TextColor3 = Color3.fromRGB(200, 255, 200)
+Percentage.TextWrapped = true
+Percentage.TextXAlignment = Enum.TextXAlignment.Center
+Percentage.TextYAlignment = Enum.TextYAlignment.Center
+Percentage.Visible = false
+
+-- Level Button
+local LevelButton = Instance.new("TextButton", MainFrame)
+LevelButton.Size = UDim2.new(1, -40, 0, 38)
+LevelButton.Position = UDim2.new(0, 20, 0, 200)
+LevelButton.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+LevelButton.Text = "Level Equipped Pet"
+LevelButton.Font = Enum.Font.GothamBold
+LevelButton.TextSize = 18
+LevelButton.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", LevelButton).CornerRadius = UDim.new(0, 6)
+
+-- Helpers
+local function parseNameData(name)
+    local weight = string.match(name, "%[(%d+%.?%d*)%sKG%]")
+    local age = string.match(name, "%[Age%s(%d+)%]")
+    local baseName = string.match(name, "^(.-)%s*%[") or name
+    return tonumber(weight), tonumber(age), baseName
+end
+
+-- Save original sizes for scaling
+local function saveOriginalSizes(tool)
+    if tool:GetAttribute("OriginalSizesSaved") then return end
+    local model = tool:FindFirstChildWhichIsA("Model")
+    if not model then return end
+    for _, part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part:SetAttribute("OriginalSizeX", part.Size.X)
+            part:SetAttribute("OriginalSizeY", part.Size.Y)
+            part:SetAttribute("OriginalSizeZ", part.Size.Z)
+        elseif part:IsA("SpecialMesh") then
+            part:SetAttribute("OriginalMeshX", part.Scale.X)
+            part:SetAttribute("OriginalMeshY", part.Scale.Y)
+            part:SetAttribute("OriginalMeshZ", part.Scale.Z)
+        end
+    end
+    tool:SetAttribute("OriginalSizesSaved", true)
+end
+
+local function scaleModelProper(tool, ratio)
+    local model = tool:FindFirstChildWhichIsA("Model")
+    if not model then return end
+    if not model.PrimaryPart then return end
+    local origin = model.PrimaryPart.Position
+
+    for _, part in ipairs(model:GetDescendants()) do  
+        if part:IsA("BasePart") then  
+            local ox = part:GetAttribute("OriginalSizeX")  
+            local oy = part:GetAttribute("OriginalSizeY")  
+            local oz = part:GetAttribute("OriginalSizeZ")  
+            if ox and oy and oz then  
+                part.Size = Vector3.new(ox, oy, oz) * ratio  
+                part.Position = origin + (part.Position - origin) * ratio  
+            end  
+        elseif part:IsA("SpecialMesh") then  
+            local mx = part:GetAttribute("OriginalMeshX")  
+            local my = part:GetAttribute("OriginalMeshY")  
+            local mz = part:GetAttribute("OriginalMeshZ")  
+            if mx and my and mz then  
+                part.Scale = Vector3.new(mx, my, mz) * ratio  
+            end  
+        end  
+    end
+end
+
+-- Main Logic
+LevelButton.MouseButton1Click:Connect(function()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local tool = char:FindFirstChildOfClass("Tool")
+    if not tool then
+        FeedbackLabel.Visible = true
+        FeedbackLabel.Text = "⚠️ Hold a pet first!"
+        task.wait(2)
+        FeedbackLabel.Visible = false
+        return
+    end
+
+    local targetAge = tonumber(InputBox.Text) or DEFAULT_AGE  
+    targetAge = math.clamp(targetAge, 0, MAX_AGE)  
+
+    local currentWeight, currentAge, baseName = parseNameData(tool.Name)  
+    if currentAge and targetAge < currentAge then  
+        FeedbackLabel.Visible = true  
+        FeedbackLabel.Text = "❌ Cannot level down pets!"  
+        task.wait(2)  
+        FeedbackLabel.Visible = false  
+        return  
+    end  
+
+    -- Show loading UI  
+    LevelButton.Visible = false  
+    InputBox.Visible = false  
+    FeedbackLabel.Visible = true  
+    Percentage.Visible = true  
+
+    -- Loading animation  
+    local loading = true  
+    task.spawn(function()  
+        local dots = 0  
+        while loading do  
+            dots = (dots % 3) + 1  
+            FeedbackLabel.Text = "Leveling your pet" .. string.rep(".", dots)  
+            task.wait(0.5)  
+        end  
+    end)  
+
+    local steps = 100  
+    local stepWait = LOADING_SECONDS / steps  
+    for i = 1, steps do  
+        Percentage.Text = i .. "%"  
+        task.wait(stepWait)  
+    end  
+    loading = false  
+
+    -- Compute new weight (linear growth)  
+    local baseWeight = tool:GetAttribute("BaseWeight")  
+    if not baseWeight and currentWeight then  
+        baseWeight = currentWeight  
+        tool:SetAttribute("BaseWeight", baseWeight)  
+    end  
+
+    local newWeight  
+    if baseWeight then
+        local growthRate = (10 - 1) / (100 - 1) -- 0.0909 per age
+        newWeight = baseWeight + (targetAge - 1) * growthRate
+    end  
+
+    -- Update pet name  
+    if newWeight then  
+        tool.Name = string.format("%s [%.2f KG] [Age %d]", baseName or tool.Name, newWeight, targetAge)  
+    elseif currentAge then  
+        tool.Name = string.format("%s [Age %d]", baseName or tool.Name, targetAge)  
+    else  
+        tool.Name = tool.Name .. string.format(" [Age %d]", targetAge)  
+    end  
+
+    -- Save original sizes  
+    saveOriginalSizes(tool)  
+
+    -- Compute scale ratio  
+    local ratio = 1  
+    if baseWeight and newWeight then  
+        ratio = newWeight / baseWeight  
+        ratio = math.clamp(ratio, 0.5, 5)  
+    end  
+
+    -- Apply scaling  
+    scaleModelProper(tool, ratio)  
+
+    -- ✅ Show only level up info, no weight  
+    FeedbackLabel.Text = "✅ " .. (baseName or "Pet") .. " leveled to Age " .. targetAge  
+    task.wait(3)  
+
+    LevelButton.Visible = true  
+    InputBox.Visible = true  
+    FeedbackLabel.Visible = false  
+    Percentage.Visible = false
+end)
