@@ -1,0 +1,199 @@
+-- ⚡ DARK HACKER DUPLICATOR GUI ⚡
+-- Created for Jhon by ChatGPT (Zyrooo Edition v2)
+
+local Players = game:GetService("Players")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HackerDuper"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 250, 0, 190)
+Frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Selectable = true
+Frame.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner", Frame)
+Corner.CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", Frame)
+Stroke.Color = Color3.fromRGB(0, 255, 0)
+Stroke.Thickness = 2
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Header
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 35)
+Header.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
+Header.Text = "☠ HACKER DUPER ☠"
+Header.Font = Enum.Font.Code
+Header.TextSize = 18
+Header.TextColor3 = Color3.fromRGB(0, 255, 0)
+Header.Parent = Frame
+
+local HeaderCorner = Instance.new("UICorner", Header)
+HeaderCorner.CornerRadius = UDim.new(0, 10)
+
+-- Close Button
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0, 25, 0, 25)
+Close.Position = UDim2.new(1, -30, 0, 5)
+Close.BackgroundTransparency = 1
+Close.Text = "X"
+Close.TextColor3 = Color3.fromRGB(255, 0, 0)
+Close.Font = Enum.Font.Code
+Close.TextSize = 18
+Close.Parent = Header
+
+-- Button
+local DupBtn = Instance.new("TextButton")
+DupBtn.Size = UDim2.new(0.8, 0, 0, 50)
+DupBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+DupBtn.BackgroundColor3 = Color3.fromRGB(0, 40, 0)
+DupBtn.Text = "⚡ DUPLICATE ⚡"
+DupBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
+DupBtn.Font = Enum.Font.Code
+DupBtn.TextSize = 16
+DupBtn.Parent = Frame
+
+local BtnCorner = Instance.new("UICorner", DupBtn)
+BtnCorner.CornerRadius = UDim.new(0, 6)
+
+local BtnStroke = Instance.new("UIStroke", DupBtn)
+BtnStroke.Color = Color3.fromRGB(0, 255, 0)
+BtnStroke.Thickness = 1.5
+
+-- Status Label
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(0.9, 0, 0, 45)
+Status.Position = UDim2.new(0.05, 0, 0.7, 0)
+Status.BackgroundTransparency = 1
+Status.Text = "System Idle... Awaiting Input"
+Status.Font = Enum.Font.Code
+Status.TextSize = 14
+Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+Status.TextWrapped = true
+Status.Parent = Frame
+
+-- Draggable Header
+local dragging = false
+local dragStart, startPos
+
+Header.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+	end
+end)
+
+Header.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Hover Animations
+DupBtn.MouseEnter:Connect(function()
+	TweenService:Create(DupBtn, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+	}):Play()
+end)
+
+DupBtn.MouseLeave:Connect(function()
+	TweenService:Create(DupBtn, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(0, 40, 0)
+	}):Play()
+end)
+
+-- Duplication Logic
+local function getHeldItem()
+	local char = Players.LocalPlayer.Character
+	if not char then return nil end
+	for _, v in pairs(char:GetChildren()) do
+		if v:IsA("Tool") then
+			return v
+		end
+	end
+	return nil
+end
+
+local function duplicateItem(tool)
+	if not tool then return nil end
+	local clone = tool:Clone()
+	local backpack = Players.LocalPlayer:FindFirstChildOfClass("Backpack")
+	if backpack then
+		clone.Parent = backpack
+		return true
+	end
+	return false
+end
+
+-- Click Handler
+DupBtn.MouseButton1Click:Connect(function()
+	local tool = getHeldItem()
+	if tool then
+		Status.Text = "[SYSTEM] Duplicating " .. tool.Name .. "..."
+		TweenService:Create(DupBtn, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(0, 255, 0),
+			TextColor3 = Color3.fromRGB(0, 0, 0)
+		}):Play()
+		
+		wait(0.4)
+		
+		local success = duplicateItem(tool)
+		if success then
+			Status.Text = "[SUCCESS] Tool cloned successfully!"
+		else
+			Status.Text = "[ERROR] Duplication failed!"
+		end
+		
+		wait(1)
+		TweenService:Create(DupBtn, TweenInfo.new(0.3), {
+			BackgroundColor3 = Color3.fromRGB(0, 40, 0),
+			TextColor3 = Color3.fromRGB(0, 255, 0)
+		}):Play()
+	else
+		Status.Text = "[WARNING] No tool equipped!"
+	end
+end)
+
+-- Close Button
+Close.MouseButton1Click:Connect(function()
+	TweenService:Create(Frame, TweenInfo.new(0.4), {
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, Frame.Position.X.Offset, -1, 0)
+	}):Play()
+	wait(0.4)
+	ScreenGui:Destroy()
+end)
+
+-- Fade-in Effect
+Frame.BackgroundTransparency = 1
+TweenService:Create(Frame, TweenInfo.new(0.6), {
+	BackgroundTransparency = 0
+}):Play()
+
+print("☠ Hacker Duplicator GUI Loaded! ☠")
