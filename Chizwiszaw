@@ -1,0 +1,171 @@
+-- SAFE MOCK: Hacker Duplicator (Cosmetic only — no duplication, no duplicate button)
+-- Created for Jhon by ChatGPT (Mock Initialization, 0-100% over 3 minutes)
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HackerDuper_Mock"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 320, 0, 200)
+Frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Selectable = true
+Frame.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner", Frame)
+Corner.CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", Frame)
+Stroke.Color = Color3.fromRGB(0, 255, 0)
+Stroke.Thickness = 2
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Header
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
+Header.Text = "☠ HACKER DUPER ☠"
+Header.Font = Enum.Font.Code
+Header.TextSize = 18
+Header.TextColor3 = Color3.fromRGB(0, 255, 0)
+Header.Parent = Frame
+
+local HeaderCorner = Instance.new("UICorner", Header)
+HeaderCorner.CornerRadius = UDim.new(0, 10)
+
+-- Close Button
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0, 28, 0, 28)
+Close.Position = UDim2.new(1, -34, 0, 6)
+Close.BackgroundTransparency = 1
+Close.Text = "X"
+Close.TextColor3 = Color3.fromRGB(255, 0, 0)
+Close.Font = Enum.Font.Code
+Close.TextSize = 18
+Close.Parent = Header
+
+-- Status Label (moved up since no duplicate button)
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(0.9, 0, 0, 36)
+Status.Position = UDim2.new(0.05, 0, 0.55, 0)
+Status.BackgroundTransparency = 1
+Status.Text = "System Idle... Awaiting Input"
+Status.Font = Enum.Font.Code
+Status.TextSize = 14
+Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+Status.TextWrapped = true
+Status.Parent = Frame
+
+-- Progress bar container
+local ProgressBG = Instance.new("Frame")
+ProgressBG.Size = UDim2.new(0.9, 0, 0, 18)
+ProgressBG.Position = UDim2.new(0.05, 0, 0.34, 0)
+ProgressBG.BackgroundColor3 = Color3.fromRGB(5,5,5)
+ProgressBG.BorderSizePixel = 1
+ProgressBG.Parent = Frame
+local pCorner = Instance.new("UICorner", ProgressBG)
+pCorner.CornerRadius = UDim.new(0, 6)
+
+local ProgressFill = Instance.new("Frame")
+ProgressFill.Size = UDim2.new(0, 0, 1, 0) -- starts at 0%
+ProgressFill.Position = UDim2.new(0, 0, 0, 0)
+ProgressFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+ProgressFill.BorderSizePixel = 0
+ProgressFill.Parent = ProgressBG
+local fCorner = Instance.new("UICorner", ProgressFill)
+fCorner.CornerRadius = UDim.new(0, 6)
+
+local PercentLabel = Instance.new("TextLabel")
+PercentLabel.Size = UDim2.new(1, 0, 1, 0)
+PercentLabel.BackgroundTransparency = 1
+PercentLabel.Text = "0%"
+PercentLabel.Font = Enum.Font.Code
+PercentLabel.TextSize = 12
+PercentLabel.TextColor3 = Color3.fromRGB(0,0,0)
+PercentLabel.Parent = ProgressFill
+PercentLabel.TextScaled = true
+
+-- Draggable Header
+local dragging = false
+local dragStart, startPos
+
+Header.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+	end
+end)
+
+Header.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Close Button
+Close.MouseButton1Click:Connect(function()
+	TweenService:Create(Frame, TweenInfo.new(0.35), {
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, Frame.Position.X.Offset, -1, 0)
+	}):Play()
+	wait(0.35)
+	ScreenGui:Destroy()
+end)
+
+-- Fade-in Effect
+Frame.BackgroundTransparency = 1
+TweenService:Create(Frame, TweenInfo.new(0.5), {
+	BackgroundTransparency = 0
+}):Play()
+
+-- Initialization sequence (mock): 0 -> 100% over 180 seconds (3 minutes)
+-- NOTE: This is a pure client-side cosmetic sequence; it does not talk to server or duplicate anything.
+spawn(function()
+	Status.Text = "INITIALIZING... 0%"
+	local totalSeconds = 180
+	local steps = 100
+	local stepDuration = totalSeconds / steps -- 1.8s per percent
+
+	for i = 1, steps do
+		local percent = i
+		local targetSize = UDim2.new(percent/100, 0, 1, 0)
+		local tween = TweenService:Create(ProgressFill, TweenInfo.new(stepDuration), {Size = targetSize})
+		tween:Play()
+		PercentLabel.Text = tostring(percent) .. "%"
+		Status.Text = "INITIALIZING... " .. tostring(percent) .. "%"
+		wait(stepDuration)
+	end
+
+	-- After completion: show final message
+	Status.Text = "SERVER NOT APPLICABLE FOR SCRIPT"
+	ProgressFill.BackgroundColor3 = Color3.fromRGB(160, 0, 0) -- failure/redish
+	PercentLabel.Text = "100%"
+end)
+
+print("☠ Hacker Duplicator MOCK GUI Loaded (cosmetic only). ☠")
