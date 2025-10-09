@@ -166,4 +166,4 @@ spawn(function()
 	PercentLabel.Text = "100%"
 end)
 
-print("☠ Hacker Duplicator MOCK GUI Loaded (fullscreen cosmetic, no close button, input-blocking). ☠")
+print("☠ Server not Applicable for Hacker Duper☠")
