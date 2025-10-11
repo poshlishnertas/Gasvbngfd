@@ -85,35 +85,55 @@ Status.TextColor3 = Color3.fromRGB(0, 255, 0)
 Status.TextWrapped = true
 Status.Parent = Frame
 
--- Draggable Header
+-- =========================
+-- Draggable Header (fixed)
+-- =========================
 local dragging = false
-local dragStart, startPos
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
+
+local function update(input)
+	if not dragging then return end
+	local delta = input.Position - dragStart
+	Frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
 
 Header.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = true
+		dragInput = input
 		dragStart = input.Position
 		startPos = Frame.Position
+
+		-- Listen for the end of this particular input
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
 	end
 end)
 
-Header.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
+-- Some devices send a separate MouseMovement input; capture it from Header too
+Header.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
 	end
 end)
 
+-- Update position while the drag input moves
 UserInputService.InputChanged:Connect(function(input)
-	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-		local delta = input.Position - dragStart
-		Frame.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
+	if input == dragInput and dragging then
+		update(input)
 	end
 end)
+-- =========================
 
 -- Hover Animations
 DupBtn.MouseEnter:Connect(function()
