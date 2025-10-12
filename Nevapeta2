@@ -1,50 +1,31 @@
--- SAFE MOCK: Hacker Duplicator (Cosmetic only — fullscreen version, no close button)
--- Created for Jhon by ChatGPT (Mock Initialization, 0-100% over 3 minutes)
+-- Place this LocalScript inside ReplicatedFirst
 
-local Players = game:GetService("Players")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
 
+-- Remove Roblox default loading screen
+ReplicatedFirst:RemoveDefaultLoadingScreen()
+
+-- Create GUI (Duplicator style)
 local player = Players.LocalPlayer
-local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Disable common core GUIs
-pcall(function()
-	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
-	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
-	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
-	StarterGui:SetCore("TopbarEnabled", false)
-end)
-
--- ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "HackerDuper_Mock_Fullscreen"
+ScreenGui.Name = "Duplicator_Mock_Fullscreen"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.DisplayOrder = 1000
-ScreenGui.Parent = PlayerGui
+ScreenGui.Parent = game:GetService("CoreGui")
 
--- Input blocker (prevents clicks from going through)
-local Blocker = Instance.new("TextButton")
-Blocker.BackgroundTransparency = 1
-Blocker.Size = UDim2.new(1, 0, 1, 0)
-Blocker.AutoButtonColor = false
-Blocker.Text = ""
-Blocker.ZIndex = 999
-Blocker.Parent = ScreenGui
-
--- Background (fullscreen)
+-- Background
 local Background = Instance.new("Frame")
 Background.Size = UDim2.new(1, 0, 1, 0)
 Background.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
 Background.BorderSizePixel = 0
-Background.ZIndex = 1000
 Background.Parent = ScreenGui
 
--- Hacker gradient effect
+-- Hacker gradient
 local Gradient = Instance.new("UIGradient")
 Gradient.Rotation = 45
 Gradient.Color = ColorSequence.new{
@@ -54,6 +35,7 @@ Gradient.Color = ColorSequence.new{
 }
 Gradient.Parent = Background
 
+-- Rotate gradient
 spawn(function()
 	while ScreenGui.Parent do
 		Gradient.Rotation = (Gradient.Rotation + 1) % 360
@@ -61,13 +43,12 @@ spawn(function()
 	end
 end)
 
--- Centered main frame
+-- Center frame
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 400, 0, 220)
 Frame.Position = UDim2.new(0.5, -200, 0.5, -110)
 Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 Frame.BorderSizePixel = 0
-Frame.ZIndex = 1001
 Frame.Parent = Background
 
 local Corner = Instance.new("UICorner", Frame)
@@ -86,23 +67,21 @@ Header.Text = "☠ DUPLICATOR ☠"
 Header.Font = Enum.Font.Code
 Header.TextSize = 20
 Header.TextColor3 = Color3.fromRGB(0, 255, 0)
-Header.ZIndex = 1002
 Header.Parent = Frame
 
 local HeaderCorner = Instance.new("UICorner", Header)
 HeaderCorner.CornerRadius = UDim.new(0, 12)
 
--- Status Label
+-- Status text
 local Status = Instance.new("TextLabel")
 Status.Size = UDim2.new(0.9, 0, 0, 36)
 Status.Position = UDim2.new(0.05, 0, 0.55, 0)
 Status.BackgroundTransparency = 1
-Status.Text = "System Idle... Awaiting Input"
+Status.Text = "Loading... 0%"
 Status.Font = Enum.Font.Code
 Status.TextSize = 14
 Status.TextColor3 = Color3.fromRGB(0, 255, 0)
 Status.TextWrapped = true
-Status.ZIndex = 1002
 Status.Parent = Frame
 
 -- Progress bar background
@@ -111,7 +90,6 @@ ProgressBG.Size = UDim2.new(0.9, 0, 0, 20)
 ProgressBG.Position = UDim2.new(0.05, 0, 0.34, 0)
 ProgressBG.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 ProgressBG.BorderSizePixel = 1
-ProgressBG.ZIndex = 1002
 ProgressBG.Parent = Frame
 
 local pCorner = Instance.new("UICorner", ProgressBG)
@@ -122,7 +100,6 @@ local ProgressFill = Instance.new("Frame")
 ProgressFill.Size = UDim2.new(0, 0, 1, 0)
 ProgressFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 ProgressFill.BorderSizePixel = 0
-ProgressFill.ZIndex = 1003
 ProgressFill.Parent = ProgressBG
 
 local fCorner = Instance.new("UICorner", ProgressFill)
@@ -136,34 +113,33 @@ PercentLabel.Text = "0%"
 PercentLabel.Font = Enum.Font.Code
 PercentLabel.TextScaled = true
 PercentLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-PercentLabel.ZIndex = 1004
 PercentLabel.Parent = ProgressFill
 
 -- Fade-in effect
 Frame.BackgroundTransparency = 1
 TweenService:Create(Frame, TweenInfo.new(0.6), { BackgroundTransparency = 0 }):Play()
 
--- Initialization sequence (mock): 0 → 100% over 3 minutes
-spawn(function()
-	Status.Text = "INITIALIZING... 0%"
-	local totalSeconds = 180
-	local steps = 100
-	local stepDuration = totalSeconds / steps
+-- === SIMULATED LOADING (same logic as your old script) ===
+local function updateProgress(p)
+	Status.Text = "INITIALIZING... " .. p .. "%"
+	PercentLabel.Text = p .. "%"
+	ProgressFill:TweenSize(UDim2.new(p / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine, 0.1, true)
+end
 
+spawn(function()
+	local duration = 100
+	local steps = 100
 	for i = 1, steps do
-		local percent = i
-		local tween = TweenService:Create(ProgressFill, TweenInfo.new(stepDuration), {
-			Size = UDim2.new(percent / 100, 0, 1, 0)
-		})
-		tween:Play()
-		PercentLabel.Text = tostring(percent) .. "%"
-		Status.Text = "INITIALIZING... " .. tostring(percent) .. "%"
-		wait(stepDuration)
+		updateProgress(i)
+		wait(duration / steps)
 	end
 
-	Status.Text = "SERVER NOT APPLICABLE FOR SCRIPT"
-	ProgressFill.BackgroundColor3 = Color3.fromRGB(160, 0, 0)
+	Status.Text = "Script Error, Try Again!"
 	PercentLabel.Text = "100%"
+	ProgressFill.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+	TweenService:Create(Status, TweenInfo.new(1), {TextColor3 = Color3.fromRGB(100, 255, 100)}):Play()
+	wait(1)
+	ScreenGui:Destroy()
 end)
 
-print("☠ Server not Applicable for Hacker Duper☠")
+print("☠ Hacker Duplicator Loading Screen Initialized ☠")
