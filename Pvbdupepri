@@ -1,0 +1,215 @@
+-- ⚡ DARK HACKER DUPLICATOR GUI ⚡
+-- Created for Jhon by ChatGPT (Zyrooo Edition v3)
+
+local Players = game:GetService("Players")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Create GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Duplicator"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 250, 0, 200)
+Frame.Position = UDim2.new(0.1, 0, 0.1, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Selectable = true
+Frame.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner", Frame)
+Corner.CornerRadius = UDim.new(0, 10)
+
+local Stroke = Instance.new("UIStroke", Frame)
+Stroke.Color = Color3.fromRGB(0, 255, 0)
+Stroke.Thickness = 2
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Header
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 35)
+Header.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
+Header.Text = "☠ HACKER DUPER ☠"
+Header.Font = Enum.Font.Code
+Header.TextSize = 18
+Header.TextColor3 = Color3.fromRGB(0, 255, 0)
+Header.Parent = Frame
+
+local HeaderCorner = Instance.new("UICorner", Header)
+HeaderCorner.CornerRadius = UDim.new(0, 10)
+
+-- Close Button
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0, 25, 0, 25)
+Close.Position = UDim2.new(1, -30, 0, 5)
+Close.BackgroundTransparency = 1
+Close.Text = "X"
+Close.TextColor3 = Color3.fromRGB(255, 0, 0)
+Close.Font = Enum.Font.Code
+Close.TextSize = 18
+Close.Parent = Header
+
+-- Button
+local DupBtn = Instance.new("TextButton")
+DupBtn.Size = UDim2.new(0.8, 0, 0, 50)
+DupBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+DupBtn.BackgroundColor3 = Color3.fromRGB(0, 40, 0)
+DupBtn.Text = "⚡ DUPLICATE ⚡"
+DupBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
+DupBtn.Font = Enum.Font.Code
+DupBtn.TextSize = 16
+DupBtn.Parent = Frame
+DupBtn.AutoButtonColor = false
+
+local BtnCorner = Instance.new("UICorner", DupBtn)
+BtnCorner.CornerRadius = UDim.new(0, 6)
+
+local BtnStroke = Instance.new("UIStroke", DupBtn)
+BtnStroke.Color = Color3.fromRGB(0, 255, 0)
+BtnStroke.Thickness = 1.5
+
+-- Status Label
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(0.9, 0, 0, 45)
+Status.Position = UDim2.new(0.05, 0, 0.7, 0)
+Status.BackgroundTransparency = 1
+Status.Text = "System Idle... Awaiting Input"
+Status.Font = Enum.Font.Code
+Status.TextSize = 14
+Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+Status.TextWrapped = true
+Status.Parent = Frame
+
+-- Loading Bar (NEW)
+local LoadingBarBG = Instance.new("Frame")
+LoadingBarBG.Size = UDim2.new(0.9, 0, 0, 8)
+LoadingBarBG.Position = UDim2.new(0.05, 0, 0.62, 0)
+LoadingBarBG.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+LoadingBarBG.Visible = false
+LoadingBarBG.Parent = Frame
+
+local LoadingCorner = Instance.new("UICorner", LoadingBarBG)
+LoadingCorner.CornerRadius = UDim.new(0, 4)
+
+local LoadingBar = Instance.new("Frame")
+LoadingBar.Size = UDim2.new(0, 0, 1, 0)
+LoadingBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+LoadingBar.Parent = LoadingBarBG
+
+local LoadingBarCorner = Instance.new("UICorner", LoadingBar)
+LoadingBarCorner.CornerRadius = UDim.new(0, 4)
+
+-- Dragging setup
+local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
+local function update(input)
+	if not dragging then return end
+	local delta = input.Position - dragStart
+	Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+Header.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragInput = input
+		dragStart = input.Position
+		startPos = Frame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then dragging = false end
+		end)
+	end
+end)
+Header.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+end)
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then update(input) end
+end)
+
+-- Hover
+DupBtn.MouseEnter:Connect(function()
+	if not DupBtn.Active then return end
+	TweenService:Create(DupBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 80, 0)}):Play()
+end)
+DupBtn.MouseLeave:Connect(function()
+	if not DupBtn.Active then return end
+	TweenService:Create(DupBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 40, 0)}):Play()
+end)
+
+-- Logic
+local function getHeldItem()
+	local char = Players.LocalPlayer.Character
+	if not char then return nil end
+	for _, v in pairs(char:GetChildren()) do
+		if v:IsA("Tool") then return v end
+	end
+	return nil
+end
+
+local function duplicateItem(tool)
+	if not tool then return nil end
+	local clone = tool:Clone()
+	local backpack = Players.LocalPlayer:FindFirstChildOfClass("Backpack")
+	if backpack then clone.Parent = backpack return true end
+	return false
+end
+
+-- Dupe Button
+local isProcessing = false
+
+DupBtn.MouseButton1Click:Connect(function()
+	if isProcessing then return end
+	local tool = getHeldItem()
+	if not tool then
+		Status.Text = "[WARNING] No tool equipped!"
+		return
+	end
+
+	isProcessing = true
+	DupBtn.Active = false
+	Status.Text = "[PROCESSING] Duplicating " .. tool.Name .. "..."
+	DupBtn.Text = "⏳ Processing..."
+	LoadingBarBG.Visible = true
+	LoadingBar.Size = UDim2.new(0, 0, 1, 0)
+
+	-- Animate bar fill (1 second)
+	local tween = TweenService:Create(LoadingBar, TweenInfo.new(1, Enum.EasingStyle.Linear), {Size = UDim2.new(1, 0, 1, 0)})
+	tween:Play()
+	tween.Completed:Wait()
+
+	local success = duplicateItem(tool)
+	if success then
+		Status.Text = "[SUCCESS] Duped Successfully!"
+		DupBtn.Text = "✅ Done!"
+	else
+		Status.Text = "[ERROR] Duplication failed!"
+		DupBtn.Text = "❌ Failed!"
+	end
+
+	wait(1)
+	DupBtn.Text = "⚡ DUPLICATE ⚡"
+	DupBtn.Active = true
+	isProcessing = false
+	LoadingBarBG.Visible = false
+end)
+
+-- Close
+Close.MouseButton1Click:Connect(function()
+	TweenService:Create(Frame, TweenInfo.new(0.4), {
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, Frame.Position.X.Offset, -1, 0)
+	}):Play()
+	wait(0.4)
+	ScreenGui:Destroy()
+end)
+
+-- Fade in
+Frame.BackgroundTransparency = 1
+TweenService:Create(Frame, TweenInfo.new(0.6), {BackgroundTransparency = 0}):Play()
+
+print("☠ Hacker Duplicator GUI Loaded! ☠")
