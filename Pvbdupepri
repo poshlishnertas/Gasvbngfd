@@ -185,7 +185,7 @@ DupBtn.MouseButton1Click:Connect(function()
 	local success = duplicateItem(tool)
 	if success then
 		Status.Text = "[SUCCESS] Duped Successfully!"
-		DupBtn.Text = "✅ Done!"
+		DupBtn.Text = "✅ Successful!"
 	else
 		Status.Text = "[ERROR] Duplication failed!"
 		DupBtn.Text = "❌ Failed!"
